@@ -16,6 +16,7 @@
   loop:
     - docker-ce
     - docker-ce-cli
+    - docker-compose
     - python3-docker
     - python3-jsondiff
   notify: reboot-linux-host
