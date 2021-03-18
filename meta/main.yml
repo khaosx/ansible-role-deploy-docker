@@ -1,0 +1,8 @@
+galaxy_info:
+  role_name: deploy_docker
+  author: Kristopher Newman
+  description: Role for installing docker on Ubuntu
+  license: CC-BY
+  min_ansible_version: 1.2
+  galaxy_tags: []
+dependencies: []

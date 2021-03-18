@@ -1,0 +1,37 @@
+---
+
+- name: Add GPG key for Docker
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker repo
+  ansible.builtin.apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+    state: present
+
+- name: Install Docker
+  ansible.builtin.apt:
+    name: "{{ item }}"
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - python3-docker
+    - python3-jsondiff
+  notify: reboot-linux-host
+
+- name: Ensure group "docker" exists
+  ansible.builtin.group:
+    name: docker
+    state: present
+
+- name: Add users to docker group
+  ansible.builtin.user:
+    name: '{{ item }}'
+    groups: docker
+    append: true
+  loop: [ "{{ ansible_user }}" ]
+
+- name: Allow Docker service to become active
+  ansible.builtin.wait_for:
+    path: /var/run/docker.sock
