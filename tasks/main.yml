@@ -10,7 +10,7 @@
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
     state: present
 
-- name: Install Docker
+- name: Install Docker and other required packages
   ansible.builtin.apt:
     name: "{{ item }}"
   loop:
@@ -19,6 +19,7 @@
     - docker-compose
     - python3-docker
     - python3-jsondiff
+    - nfs-common
   notify: reboot-linux-host
 
 - name: Ensure group "docker" exists
@@ -36,3 +37,18 @@
 - name: Allow Docker service to become active
   ansible.builtin.wait_for:
     path: /var/run/docker.sock
+
+- name: Create NFS mount directory for containers if not exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop: [ '/nfs/containers' ]
+
+- name: Mount NFS export for Containers on Palladium
+  mount:
+    src: "palladium:/volume1/containers"
+    fstype: nfs4
+    path: "/nfs/containers"
+    opts: rsize=8192,wsize=8192,timeo=14,intr,_netdev
+    state: mounted
